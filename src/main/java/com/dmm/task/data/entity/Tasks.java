@@ -16,7 +16,6 @@ public class Tasks {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	private String title;
-	private String name;
 	private String text;
 	private LocalDate date;
 	private boolean done;
