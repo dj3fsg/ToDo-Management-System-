@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import com.dmm.task.data.entity.Tasks;
 import com.dmm.task.data.repository.TasksRepository;
 import com.dmm.task.form.TaskForm;
 import com.dmm.task.service.AccountUserDetails;
+import com.dmm.task.service.TaskService;
 
 @Controller
 public class MainController {
@@ -31,7 +31,14 @@ public class MainController {
 	@Autowired
 	private TasksRepository repo;
 	
-	
+	private final TaskService taskService;
+
+	// '@Autowired'と書いてあるのは、この下に書かれている部分（商品操作サービス）が自動的に準備されるという意味です。
+    // このクラス内のどこからでも、この商品操作サービスを利用できるようになります。
+    @Autowired
+    public MainController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
 	/**
 	 * 投稿の一覧表示.
@@ -130,8 +137,9 @@ public class MainController {
 	    if(roles.contains("ADMIN")) {
 	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 	    }else {
-	    	//そのユーザのみに絞りたいが、妥当な方法不明のため仮でこのようにする
-	    	list= repo.findByDateBetween(previousDate.atStartOfDay(),currentDate.atStartOfDay(),user.getName());
+	    	//以下は実行するとエラーになるため、コメントアウトし仮の処理を実行
+	    	//list= repo.findByDateBetween(previousDate.atStartOfDay(),currentDate.atStartOfDay(),user.getName());
+	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 	    }
 
 	    // ★取得したタスクをコレクションに追加
@@ -183,12 +191,24 @@ public class MainController {
 	
 	// タスク編集画面の表示用
 	@GetMapping("/main/edit/{id}")
-	public String edit(@PathVariable Integer id, Model model){
-		
-		Optional<Tasks> task = repo.findById(id);
-		model.addAttribute("task.id", task.get(id));
-		return "edit";
-		
+	public String edit(@PathVariable Integer id,Model model ){
+		// 更新するタスクの情報を取得します。
+        Tasks tasks = taskService.getTaskById(id).orElse(null);
+        // 取得したタスクを画面（ビュー）に渡します。
+        model.addAttribute("task.id",tasks.getId());
+        model.addAttribute("task.title", tasks.getTitle());
+        model.addAttribute("task.date",tasks.getDate());
+        model.addAttribute("task.text", tasks.getText());
+        model.addAttribute("task.done", tasks.isDone());
+        // タスクを更新する画面（'edit'）を表示します。
+        return "edit";
 	}
 	
+	//タスク削除用
+	@PostMapping("/main/delete/{id}")
+	public String delete(@PathVariable Integer id) {
+		repo.deleteById(id);
+		return "redirect:/main";
+	}
+
 }
