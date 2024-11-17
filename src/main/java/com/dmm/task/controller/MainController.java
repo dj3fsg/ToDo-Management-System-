@@ -186,7 +186,7 @@ public class MainController {
 	public String edit(@PathVariable Integer id, Model model){
 		
 		Optional<Tasks> task = repo.findById(id);
-		model.addAttribute("task", task);
+		model.addAttribute("task.id", task.get(id));
 		return "edit";
 		
 	}
