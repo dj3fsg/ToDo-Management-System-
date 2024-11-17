@@ -131,7 +131,7 @@ public class MainController {
 	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 	    }else {
 	    	//そのユーザのみに絞りたいが、妥当な方法不明のため仮でこのようにする
-	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
+	    	list= repo.findByDateBetween(previousDate.atStartOfDay(),currentDate.atStartOfDay(),user.getName());
 	    }
 
 	    // ★取得したタスクをコレクションに追加
