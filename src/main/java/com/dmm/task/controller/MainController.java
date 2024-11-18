@@ -138,8 +138,7 @@ public class MainController {
 	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 	    }else {
 	    	//以下は実行するとエラーになるため、コメントアウトし仮の処理を実行
-	    	//list= repo.findByDateBetween(previousDate.atStartOfDay(),currentDate.atStartOfDay(),user.getName());
-	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
+	    	list= repo.findByDateBetween(previousDate.atTime(0, 0),currentDate.atTime(0, 0),user.getName());
 	    }
 
 	    // ★取得したタスクをコレクションに追加
@@ -192,17 +191,30 @@ public class MainController {
 	// タスク編集画面の表示用
 	@GetMapping("/main/edit/{id}")
 	public String edit(@PathVariable Integer id,Model model ){
-		// 更新するタスクの情報を取得します。
-        Tasks tasks = taskService.getTaskById(id).orElse(null);
-        // 取得したタスクを画面（ビュー）に渡します。
-        model.addAttribute("task.id",tasks.getId());
-        model.addAttribute("task.title", tasks.getTitle());
-        model.addAttribute("task.date",tasks.getDate());
-        model.addAttribute("task.text", tasks.getText());
-        model.addAttribute("task.done", tasks.isDone());
-        // タスクを更新する画面（'edit'）を表示します。
-        return "edit";
+		 Tasks task = repo.getById(id);
+		 model.addAttribute("task", task);
+		 return "edit";
+		
 	}
+	
+	//タスク編集更新用
+	@PostMapping("/main/edit/{id}")
+	public String update(TaskForm taskForm,@PathVariable Integer id,@AuthenticationPrincipal AccountUserDetails user, Model model){
+			 
+		Tasks task = new Tasks();
+		
+		//フォームから割り当て
+		task.setName(user.getName());
+		task.setTitle(taskForm.getTitle());
+		task.setText(taskForm.getText());
+		task.setDate(taskForm.getDate());
+		task.setDone(taskForm.isDone());
+		
+		//DBに更新
+		repo.deleteById(id);
+		repo.save(task);
+		return "redirect:/main";			
+		}
 	
 	//タスク削除用
 	@PostMapping("/main/delete/{id}")
