@@ -56,32 +56,36 @@ public class MainController {
 		if(date == null) {
 		date = LocalDate.now();
 		}
-		 model.addAttribute("prev",date.minusMonths(1));
-		 model.addAttribute("next",date.plusMonths(1));
+		
+		//前の月のカレンダーを表示
+		model.addAttribute("prev",date.minusMonths(1));
+		//つぎの
+		model.addAttribute("next",date.plusMonths(1));
 	
 
 		
-		//1. 週と日を格納する二次元配列を用意する
+		// 週と日を格納する二次元配列を用意する
 	    List<List<LocalDate>> month = new ArrayList<>();
 	    
 	    
-	    //2.1週間分のLocalDateを格納するListを用意する
+	    //1週間分のLocalDateを格納するListを用意する
 	    List<LocalDate> week = new ArrayList<>();
 	    
-	    //3.その月の1日のLocalDateを取得する
+	    //その月の1日のLocalDateを取得する
 	    LocalDate This1stDay = date.withDayOfMonth(1);
 	    LocalDate previousDate =This1stDay;
 	    LocalDate currentDate =This1stDay;
-	    //4-1.曜日を表すDayOfWeekを取得
+	    
+	    //曜日を表すDayOfWeekを取得
 	    int dayValue = This1stDay.getDayOfWeek().getValue();
 	    
 	    //もし、1日が日曜日で無ければ以下の処理を行う
 	   
-	    //4-2.上で取得したLocalDateに曜日の値（DayOfWeek#getValue)をマイナスして前月分のLocalDateを求める
+	    //上で取得したLocalDateに曜日の値（DayOfWeek#getValue)をマイナスして前月分のLocalDateを求める
 	    if(dayValue != 7) {
 		    previousDate = This1stDay.minusDays(dayValue);
 	    }
-		    //5.1日ずつ増やしてLocalDateを求めていき、2．で作成したListへ格納していき、1週間分詰めたら1．のリストへ格納する
+		    //1日ずつ増やしてLocalDateを求めていき、List:weekへ格納していき、1週間分詰めたら1．のリストへ格納する
 			currentDate =  previousDate;
 			
 		    for(int i = 0; i < 7; i++) {
@@ -141,17 +145,13 @@ public class MainController {
 	    	list= repo.findByDateBetween(previousDate.atTime(0, 0),currentDate.atTime(0, 0),user.getName());
 	    }
 
-	    // ★取得したタスクをコレクションに追加
+	    // 取得したタスクをコレクションに追加
 	    for (Tasks task : list) {
 	        tasks.add(task.getDate(), task);
 	    }
 
-	    // コレクションのデータをHTMLに連携
-	    
-
-	    
-	    model.addAttribute("matrix",month);
-	   
+	    // コレクションのデータをHTMLに連携	    
+	    model.addAttribute("matrix",month);	   
 	    model.addAttribute("tasks",tasks);
 		
 	
