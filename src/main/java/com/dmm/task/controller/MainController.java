@@ -169,12 +169,14 @@ public class MainController {
 	public String createPost(TaskForm taskForm,@AuthenticationPrincipal AccountUserDetails user, Model model) {
 		Tasks task = new Tasks();
 		
+		//エンティティにフォームからのデータを渡す
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
 		task.setDate(taskForm.getDate().atTime(0, 0));
 		task.setDone(false);
-	
+		
+		//DBへ登録
 		repo.save(task);
 	
 		return "redirect:/main";
@@ -196,14 +198,14 @@ public class MainController {
 			 
 		Tasks task = new Tasks();
 		
-		//フォームから割り当て
+		//エンティティにフォームからのデータを渡す
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
 		task.setDate(taskForm.getDate().atTime(0, 0));
 		task.setDone(taskForm.isDone());
 		
-		//DBに更新
+		//DBへ更新
 		repo.deleteById(id);
 		repo.save(task);
 		return "redirect:/main";			
