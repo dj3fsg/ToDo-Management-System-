@@ -23,7 +23,6 @@ import com.dmm.task.data.entity.Tasks;
 import com.dmm.task.data.repository.TasksRepository;
 import com.dmm.task.form.TaskForm;
 import com.dmm.task.service.AccountUserDetails;
-import com.dmm.task.service.TaskService;
 
 @Controller
 public class MainController {
@@ -31,17 +30,11 @@ public class MainController {
 	@Autowired
 	private TasksRepository repo;
 	
-	private final TaskService taskService;
 
-	// '@Autowired'と書いてあるのは、この下に書かれている部分（商品操作サービス）が自動的に準備されるという意味です。
-    // このクラス内のどこからでも、この商品操作サービスを利用できるようになります。
-    @Autowired
-    public MainController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+   
 
 	/**
-	 * 投稿の一覧表示.
+	 * タスクの一覧表示.
 	 * 
 	 * @param model モデル
 	 * @return 遷移先
@@ -59,10 +52,8 @@ public class MainController {
 		
 		//前の月のカレンダーを表示
 		model.addAttribute("prev",date.minusMonths(1));
-		//つぎの
+		//次の月のカレンダーを表示
 		model.addAttribute("next",date.plusMonths(1));
-	
-
 		
 		// 週と日を格納する二次元配列を用意する
 	    List<List<LocalDate>> month = new ArrayList<>();
@@ -99,7 +90,7 @@ public class MainController {
 	    
 	  	
 	    
-	    //6. 2週目以降は単純に1日ずつ日を増やしながらLocalDateを求めてListへ格納
+	    // 2週目以降は単純に1日ずつ日を増やしながらLocalDateを求めてListへ格納
 	    int originDate=currentDate.getDayOfMonth(); 
 	    int lastDate=currentDate.lengthOfMonth();
 	    	
@@ -138,16 +129,18 @@ public class MainController {
 	    
 	    // リポジトリ経由でタスクを取得
 	    List<Tasks> list;
+	    	    
 	    if(roles.contains("ADMIN")) {
+	    	//ADMIN権限のユーザは全ユーザのタスクを取得
 	    	list= repo.findAll(Sort.by(Sort.Direction.DESC, "id"));
 	    }else {
-	    	//以下は実行するとエラーになるため、コメントアウトし仮の処理を実行
+	    	//それ以外のユーザはログイン中のユーザのみのタスクを取得
 	    	list= repo.findByDateBetween(previousDate.atTime(0, 0),currentDate.atTime(0, 0),user.getName());
 	    }
 
 	    // 取得したタスクをコレクションに追加
 	    for (Tasks task : list) {
-	        tasks.add(task.getDate(), task);
+	        tasks.add(task.getDate().toLocalDate(), task);
 	    }
 
 	    // コレクションのデータをHTMLに連携	    
@@ -179,7 +172,7 @@ public class MainController {
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
-		task.setDate(taskForm.getDate());
+		task.setDate(taskForm.getDate().atTime(0, 0));
 		task.setDone(false);
 	
 		repo.save(task);
@@ -207,7 +200,7 @@ public class MainController {
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
-		task.setDate(taskForm.getDate());
+		task.setDate(taskForm.getDate().atTime(0, 0));
 		task.setDone(taskForm.isDone());
 		
 		//DBに更新
