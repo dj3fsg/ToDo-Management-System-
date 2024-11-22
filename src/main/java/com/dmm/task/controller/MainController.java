@@ -2,6 +2,7 @@ package com.dmm.task.controller;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +154,7 @@ public class MainController {
 		String CurrentMonth = f.format(This1stDay);
 		model.addAttribute("month", CurrentMonth);
 		
-		return "/main";
+		return "main";
 	}
 	
 	
@@ -173,7 +174,8 @@ public class MainController {
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
-		task.setDate(taskForm.getDate().atTime(0, 0));
+//		task.setDate(taskForm.getDate().atTime(0, 0));
+		task.setDate(LocalDateTime.of(taskForm.getDate(),taskForm.getTime()));
 		task.setDone(false);
 		
 		//DBへ登録
@@ -202,7 +204,10 @@ public class MainController {
 		task.setName(user.getName());
 		task.setTitle(taskForm.getTitle());
 		task.setText(taskForm.getText());
-		task.setDate(taskForm.getDate().atTime(0, 0));
+		//2024.11.22 時刻も入力可能にする Start
+		//task.setDate(taskForm.getDate().atTime(0, 0));
+		task.setDate(LocalDateTime.of(taskForm.getDate(),taskForm.getTime()));
+		//2024.11.22 時刻も入力可能にする End
 		task.setDone(taskForm.isDone());
 		
 		//DBへ更新

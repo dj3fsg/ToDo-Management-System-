@@ -39,6 +39,14 @@
       </div>
      </div>
      <div class="form_row sd">
+      <p class="form_text sd">時刻：</p>
+      <div class="form_item">
+       <input type="time" name="time"
+        th:value="${#temporals.format(task.date, 'HH:mm')}"
+        class="item">
+      </div>
+     </div>
+     <div class="form_row sd">
       <p class="form_text sd">内容:</p>
       <div class="form_item">
        <textarea name="text" cols="80" rows="10" class="item"></textarea>
